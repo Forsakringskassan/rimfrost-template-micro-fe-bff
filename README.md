@@ -82,7 +82,6 @@ Templaten har placeholders för authorization headers. Implementera din auth-lö
 ```typescript
 headers: {
   'Authorization': `Bearer ${token}`,
-  // eller din specifika auth-metod
 }
 ```
 

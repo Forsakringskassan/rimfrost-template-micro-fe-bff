@@ -1,7 +1,6 @@
 import express from 'express';
 import path from "path";
 import { fileURLToPath } from "node:url";
-import { transformBackendResponse } from "./utils/transformBackendResponse.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,7 +11,7 @@ const PORT = process.env.PORT || 9002;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Loggning av alla inkommande requests
+// Logging of all incoming requests
 app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
     next();
@@ -34,7 +33,7 @@ app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// Endpoint för att hämta uppgiftinformation via BFF. Route: /api/:regel/:regeltyp/:kundbehovsflodeId
+// Endpoint for fetching task information via BFF. Route: /api/:regel/:regeltyp/:kundbehovsflodeId
 app.get("/api/:regel/:regeltyp/:kundbehovsflodeId", async (req, res) => {
     try {
         const { regel, regeltyp, kundbehovsflodeId } = req.params;
@@ -46,7 +45,7 @@ app.get("/api/:regel/:regeltyp/:kundbehovsflodeId", async (req, res) => {
         const response = await fetch(backendUrl, {
             method: "GET", 
             headers: {
-                ...(req.headers.authorization ? { authorization: req.headers.authorization } : {}), //Invänta information från FK om hur den här ska se ut
+                ...(req.headers.authorization ? { authorization: req.headers.authorization } : {}), //Await information from FK about how this should look
             },
         });
         
@@ -66,15 +65,13 @@ app.get("/api/:regel/:regeltyp/:kundbehovsflodeId", async (req, res) => {
         }
         
         const backendData = await response.json();
-        const transformedData = transformBackendResponse(backendData);
-        res.json(transformedData);
     } catch (error) {
         console.error("Error fetching from backend:", error);
         res.status(500).json({ error: "Internal server error", message: error instanceof Error ? error.message : String(error) });
     }
 });
 
-// Endpoint för att markera uppgift som klar via BFF. Route: PATCH /api/:regel/:regeltyp/:kundbehovsflodeId
+// Endpoint for marking task as complete via BFF. Route: PATCH /api/:regel/:regeltyp/:kundbehovsflodeId
 app.patch("/api/:regel/:regeltyp/:kundbehovsflodeId", async (req, res) => {
     try {
         const { regel, regeltyp, kundbehovsflodeId } = req.params;
@@ -88,7 +85,7 @@ app.patch("/api/:regel/:regeltyp/:kundbehovsflodeId", async (req, res) => {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
-                ...(req.headers.authorization ? { authorization: req.headers.authorization } : {}), //Invänta information från FK om hur den här ska se ut
+                ...(req.headers.authorization ? { authorization: req.headers.authorization } : {}), //Await information from FK about how this should look
             },
             body: JSON.stringify(req.body),
         });
