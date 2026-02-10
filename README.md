@@ -56,35 +56,6 @@ En template för Backend-For-Frontend (BFF) server som fungerar som mellanlager 
 └── .env.example                  # Exempel på miljövariabler
 ```
 
-## 🛠️ Anpassa templaten
-
-### 1. Uppdatera package.json
-```json
-{
-  "name": "ditt-projekt-bff",
-  "description": "BFF för ditt projekt",
-  "author": "Ditt namn"
-}
-```
-
-### 2. Modifiera API-routes i index.ts
-Nuvarande exempel-routes visar en specifik användning. Anpassa dessa efter dina behov:
-- Ändra route-strukturen (`/api/:regel/:regeltyp/:kundbehovsflodeId`)
-- Justera backend-URL-logiken
-- Lägg till/ta bort endpoints
-
-### 3. Anpassa data transformation
-Filen `utils/transformBackendResponse.ts` innehåller exempel på dataomvandling.
-Uppdatera enligt din backend-struktur och frontend-behov.
-
-### 4. Lägg till authentication
-Templaten har placeholders för authorization headers. Implementera din auth-lösning:
-```typescript
-headers: {
-  'Authorization': `Bearer ${token}`,
-}
-```
-
 ## 📜 Tillgängliga scripts
 
 ```bash
@@ -106,11 +77,6 @@ GET /api/health
 ```
 Returnerar serverstatus
 
-### Exempel-endpoints (anpassa efter behov)
-```
-GET /api/:regel/:regeltyp/:kundbehovsflodeId
-PATCH /api/:regel/:regeltyp/:kundbehovsflodeId
-```
 
 ## 🔒 Miljövariabler
 
