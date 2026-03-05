@@ -110,7 +110,7 @@ GET /api/regel/my-task/12345
 ↓
 
 BFF Processing:
-1. Validate request (kundbehovsflodeId: 12345)
+1. Validate request (handlaggningId: 12345)
 2. Call backend: GET /backend-service/rule/12345
 3. Receive: { rule_id: 1, rule_name: "test", ... }
 4. Transform: { ruleId: 1, ruleName: "test", ... }
@@ -723,7 +723,7 @@ Here's a complete, well-structured endpoint example:
 ```typescript
 interface TaskRequest {
   ruleType: string;
-  kundbehovsflodeId: string;
+  handlaggningId: string;
 }
 
 interface TransformedTask {
@@ -736,22 +736,22 @@ interface TransformedTask {
 
 /**
  * Fetch task data for a specific rule type and customer flow
- * GET /api/task/:ruleType/:kundbehovsflodeId
+ * GET /api/task/:ruleType/:handlaggningId
  */
-app.get('/api/task/:ruleType/:kundbehovsflodeId', async (req, res) => {
+app.get('/api/task/:ruleType/:handlaggningId', async (req, res) => {
   try {
     // Validate inputs
-    const { ruleType, kundbehovsflodeId } = req.params;
+    const { ruleType, handlaggningId } = req.params;
     
-    if (!ruleType || !kundbehovsflodeId) {
+    if (!ruleType || !handlaggningId) {
       return res.status(400).json({
         error: 'Missing required parameters',
-        required: ['ruleType', 'kundbehovsflodeId']
+        required: ['ruleType', 'handlaggningId']
       });
     }
 
     // Build backend URL
-    const backendUrl = `${process.env.BACKEND_BASE_URL}/rule/${ruleType}/${kundbehovsflodeId}`;
+    const backendUrl = `${process.env.BACKEND_BASE_URL}/rule/${ruleType}/${handlaggningId}`;
     
     console.log(`Fetching task from: ${backendUrl}`);
 
