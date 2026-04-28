@@ -626,30 +626,23 @@ This creates a `dist/` directory with compiled JavaScript files.
 npm start
 ```
 
-### Docker Deployment (Optional)
+### Docker Deployment
 
-Create a `Dockerfile` if deploying with Docker:
-
-```dockerfile
-FROM node:24-alpine
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci --production
-
-# Build TypeScript
-RUN npm run build
-
-# Copy compiled code
-COPY dist ./dist
-
-# Start server
-CMD ["npm", "start"]
+```bash
+docker build -t rimfrost-template-micro-fe-bff .
+docker run -p 9009:9009 \
+  -e BE_URL=https://your-backend.internal.example.com \
+  -e BE_RULE_PATH=regel/bekraftabeslut \
+  rimfrost-template-micro-fe-bff
 ```
+
+| Variable | Default | Description |
+|---|---|---|
+| `PORT` | `9009` | Port the server listens on |
+| `BE_URL` | — | Base URL of the backend service |
+| `BE_RULE_PATH` | `regel/bekraftabeslut` | Rule path appended to `BE_URL` |
+
+Environment variables are read from the container environment at startup — do **not** bake them into the image.
 
 ### Environment-Specific Configuration
 

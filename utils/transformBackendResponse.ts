@@ -1,7 +1,13 @@
-export function transformBackendResponse(backendData: any): any {
-    const rawTask = backendData?.data || backendData;
+interface BackendTaskData {
+  data?: { task_field?: string };
+  task_field?: string;
+}
 
-    const task = rawTask ? { taskField: rawTask.task_field } : null;
+interface TransformedTask {
+  taskField: string | undefined;
+}
 
-    return task;
+export function transformBackendResponse(backendData: BackendTaskData): TransformedTask | null {
+  const rawTask = backendData?.data || backendData;
+  return rawTask ? { taskField: rawTask.task_field } : null;
 }
