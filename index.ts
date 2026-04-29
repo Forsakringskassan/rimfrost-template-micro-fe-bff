@@ -32,8 +32,8 @@ app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-app.get("/api/task/:handlaggningId", async (req, res) => {
-    const { handlaggningId } = req.params;
+app.post("/api/task", async (req, res) => {
+    const { handlaggningId } = req.body;
 
     try {
         const response = await fetch(
@@ -41,19 +41,16 @@ app.get("/api/task/:handlaggningId", async (req, res) => {
         );
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
-        // Transform data as needed before sending to frontend
-        // res.json(transformBackendResponse(data));
+        res.json(data);
     } catch (error) {
         console.error(`Error fetching decision data for handlaggningId ${handlaggningId}:`, error);
         res.status(500).json({ error: "Internal server error" });
     }
 });
 
-app.patch("/api/task/:handlaggningId", async (req, res) => {
-    const { handlaggningId } = req.params;
-
+app.patch("/api/task", async (req, res) => {
     // Example body, change as appropriate
-    const { ersattningId, yrkandestatus } = req.body;
+    const { handlaggningId, ersattningId, yrkandestatus } = req.body;
     const patchBody = JSON.stringify({ ersattning_id: ersattningId, yrkandestatus });
 
     try {
@@ -77,8 +74,8 @@ app.patch("/api/task/:handlaggningId", async (req, res) => {
     }
 });
 
-app.post("/api/task/:handlaggningId/done", async (req, res) => {
-    const { handlaggningId } = req.params;
+app.post("/api/task/done", async (req, res) => {
+    const { handlaggningId } = req.body;
 
     try {
         const response = await fetch(
