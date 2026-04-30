@@ -1,0 +1,140 @@
+name: Build app into Docker image
+
+on:
+  push:
+    branches:
+      - fix/workflow-docker
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build'
+        required: false
+        type: string
+        default: '0.0.0-dev'
+      registry:
+        description: 'Container registry'
+        required: false
+        type: string
+        default: ghcr.io
+      release:
+        description: 'Tag as release (latest + version)'
+        required: false
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      registry:
+        required: false
+        type: string
+        default: ghcr.io
+      release:
+        required: true
+        type: boolean
+    secrets:
+      PACKAGES_RW_ACTOR:
+        required: true
+      PACKAGES_RW_TOKEN:
+        required: true
+
+jobs:
+  build-and-push-docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          ref: ${{ github.ref_name }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Get and sanitize package name
+        id: pkg
+        run: |
+          RAW_NAME=$(node -p "require('./package.json').name")
+          CLEAN_NAME=$(echo "$RAW_NAME" | tr -d '@' | tr '/' '-' | tr '/' '--')
+          echo "name=$CLEAN_NAME" >> $GITHUB_OUTPUT
+          echo "📦 Package name: $RAW_NAME -> $CLEAN_NAME"
+
+      - name: Build app
+        run: npm ci && npm run build
+
+      - name: Prepare Docker context
+        run: |
+          mkdir docker
+          cp -r dist docker/
+          cp package*.json docker/
+          cat > docker/Dockerfile <<'EOF'
+          FROM node:22-alpine
+          WORKDIR /app
+
+          ARG NEXT_VERSION
+          ARG GIT_COMMIT
+          ARG IMAGE_NAME
+          ARG BUILD_DATE
+          ENV NEXT_VERSION=$NEXT_VERSION
+          ENV GIT_COMMIT=$GIT_COMMIT
+          ENV IMAGE_NAME=$IMAGE_NAME
+          ENV BUILD_DATE=$BUILD_DATE
+
+          ENV NODE_ENV=production
+          ENV PORT=9009
+
+          COPY package*.json ./
+          RUN npm ci --omit=dev
+
+          COPY dist ./dist
+
+          RUN chown -R node:node .
+          USER node
+
+          EXPOSE 9009
+
+          CMD ["node", "dist/index.js"]
+          EOF
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to registry
+        run: echo "${{ secrets.PACKAGES_RW_TOKEN }}" | docker login ${{ inputs.registry || 'ghcr.io' }} -u ${{ secrets.PACKAGES_RW_ACTOR }} --password-stdin
+
+      - name: Build and push Docker image
+        run: |
+          IMAGE_BASE="${{ inputs.registry || 'ghcr.io' }}/forsakringskassan/${{ steps.pkg.outputs.name }}"
+          GIT_COMMIT=$(git rev-parse HEAD)
+          BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          NEXT_VERSION="${{ inputs.version }}"
+          COMMON_ARGS=(
+            --platform linux/amd64,linux/arm64
+            --build-arg GIT_COMMIT=$GIT_COMMIT
+            --build-arg BUILD_DATE="$BUILD_DATE"
+            --label "org.opencontainers.image.source=https://github.com/Forsakringskassan/repository"
+            --label "org.opencontainers.image.description=NPM application: ${{ steps.pkg.outputs.name }}"
+            --label "org.opencontainers.image.licenses=MIT"
+            --push
+          )
+          if [ "${{ inputs.release }}" = "true" ]; then
+            docker buildx build \
+              "${COMMON_ARGS[@]}" \
+              --build-arg NEXT_VERSION=$NEXT_VERSION \
+              --build-arg IMAGE_NAME=$IMAGE_BASE \
+              -t "$IMAGE_BASE:latest" \
+              -t "$IMAGE_BASE:$NEXT_VERSION" \
+              docker
+          fi
+          docker buildx build \
+            "${COMMON_ARGS[@]}" \
+            --build-arg NEXT_VERSION=snapshot \
+            --build-arg IMAGE_NAME=$IMAGE_BASE:snapshot \
+            -t "$IMAGE_BASE:snapshot" \
+            docker
