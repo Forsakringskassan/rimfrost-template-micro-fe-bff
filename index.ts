@@ -1,9 +1,10 @@
 import express from 'express';
-import { transformBackendResponse } from '#utils/transformBackendResponse.js';
+// import { transformBackendResponse } from '#utils/transformBackendResponse.js';
+import { requireEnv } from '#utils/requireEnv.js';
 
 const app = express();
-const PORT = process.env.PORT || 9009;
-const BE_URL = process.env.BE_URL || "http://localhost:8891";
+const PORT = requireEnv("PORT");
+const BE_URL = requireEnv("BE_URL");
 const BE_RULE_PATH = process.env.BE_RULE_PATH || "regel/bekraftabeslut";
 
 app.use(express.json());
@@ -31,8 +32,8 @@ app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-app.get("/api/task/:handlaggningId", async (req, res) => {
-    const { handlaggningId } = req.params;
+app.post("/api/task", async (req, res) => {
+    const { handlaggningId } = req.body;
 
     try {
         const response = await fetch(
@@ -40,18 +41,16 @@ app.get("/api/task/:handlaggningId", async (req, res) => {
         );
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
-        res.json(transformBackendResponse(data));
+        res.json(data);
     } catch (error) {
         console.error(`Error fetching decision data for handlaggningId ${handlaggningId}:`, error);
-        res.status(500).json({ error: "Internal server error", message: error instanceof Error ? error.message : String(error) });
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
-app.patch("/api/task/:handlaggningId", async (req, res) => {
-    const { handlaggningId } = req.params;
-
+app.patch("/api/task", async (req, res) => {
     // Example body, change as appropriate
-    const { ersattningId, yrkandestatus } = req.body;
+    const { handlaggningId, ersattningId, yrkandestatus } = req.body;
     const patchBody = JSON.stringify({ ersattning_id: ersattningId, yrkandestatus });
 
     try {
@@ -71,12 +70,12 @@ app.patch("/api/task/:handlaggningId", async (req, res) => {
         res.status(200).end();
     } catch (error) {
         console.error(`Error patching data for handlaggningId ${handlaggningId}:`, error);
-        res.status(500).json({ error: "Internal server error", message: error instanceof Error ? error.message : String(error) });
+        res.status(500).json({ error: "Internal server error"});
     }
 });
 
-app.post("/api/task/:handlaggningId/done", async (req, res) => {
-    const { handlaggningId } = req.params;
+app.post("/api/task/done", async (req, res) => {
+    const { handlaggningId } = req.body;
 
     try {
         const response = await fetch(
@@ -96,7 +95,7 @@ app.post("/api/task/:handlaggningId/done", async (req, res) => {
         res.status(204).end();
     } catch (error) {
         console.error(`Error calling /done for handlaggningId ${handlaggningId}:`, error);
-        res.status(500).json({ error: "Internal server error", message: error instanceof Error ? error.message : String(error) });
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
@@ -112,7 +111,7 @@ app.get("/api/uppgiftsbeskrivning", async (req, res) => {
         const data = await response.json();
         res.json(data);
     } catch (error) {
-        res.status(502).json({ error: "Backend service unavailable", message: error instanceof Error ? error.message : String(error) });
+        res.status(502).json({ error: "Backend service unavailable" });
     }
 });
 

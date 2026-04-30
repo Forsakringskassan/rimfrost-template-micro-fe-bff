@@ -19,7 +19,7 @@
   "author": "",
   "license": "ISC",
   "imports": {
-    "#*": "./*"
+    "#*": "./dist/*"
   },
   "dependencies": {
     "express": "^5.2.1"
