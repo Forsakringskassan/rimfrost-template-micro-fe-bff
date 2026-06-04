@@ -82,7 +82,7 @@ class TemplateBFFControllerTest
    }
 
    @Test
-   void patchTask_returns200_onSuccess()
+   void patchTask_returns204_onSuccess()
    {
       WireMockTestResource.getServer().stubFor(patch(urlEqualTo("/task-123"))
             .willReturn(aResponse().withStatus(200)));
@@ -93,7 +93,7 @@ class TemplateBFFControllerTest
             .when()
             .patch("/api/task")
             .then()
-            .statusCode(200);
+            .statusCode(204);
    }
 
    @Test
@@ -132,11 +132,25 @@ class TemplateBFFControllerTest
 
       given()
             .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer test-token")
             .body("{\"handlaggningId\": \"task-123\"}")
             .when()
             .post("/api/task/done")
             .then()
             .statusCode(204);
+   }
+
+   @Test
+   void taskDone_returns401_whenAuthorizationMissing()
+   {
+      given()
+            .contentType(ContentType.JSON)
+            .body("{\"handlaggningId\": \"task-123\"}")
+            .when()
+            .post("/api/task/done")
+            .then()
+            .statusCode(401)
+            .body("error", equalTo("Authorization header required"));
    }
 
    @Test
@@ -147,6 +161,7 @@ class TemplateBFFControllerTest
 
       given()
             .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer test-token")
             .body("{\"handlaggningId\": \"task-123\"}")
             .when()
             .post("/api/task/done")
@@ -181,7 +196,7 @@ class TemplateBFFControllerTest
             .when()
             .get("/api/uppgiftsbeskrivning")
             .then()
-            .statusCode(502)
-            .body("error", equalTo("Backend service unavailable"));
+            .statusCode(500)
+            .body("error", equalTo("Internal server error"));
    }
 }
