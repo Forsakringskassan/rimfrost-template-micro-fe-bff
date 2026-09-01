@@ -1,13 +1,4 @@
-# Environment variables
-.env
-.env.*
-!.env.example
-
-# Dependencies
-/node_modules
-
-# TypeScript build output
-/dist
-
-# OS generated files
+/old-node
+target/
 .DS_Store
+.env
