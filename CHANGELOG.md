@@ -2,6 +2,15 @@
 
 Changelog of rimfrost-template-micro-fe-bff.
 
+## 0.0.2 (2026-09-15)
+
+### Bug Fixes
+
+-  CORS was never actually enabled, only the ignored typo property was set ([97071](https://github.com/Forsakringskassan/rimfrost-template-micro-fe-bff/commit/97071bd6631d777) LisaWedin_Ductus)  
+
+### Other changes
+
+
 ## 0.0.1 (2026-09-01)
 
 ### Breaking changes
