@@ -2,6 +2,16 @@
 
 Changelog of rimfrost-template-micro-fe-bff.
 
+## 0.1.0 (2026-09-23)
+
+### Features
+
+-  apply rimfrost-framework-bff (FKPOC-1075) ([ba0ce](https://github.com/Forsakringskassan/rimfrost-template-micro-fe-bff/commit/ba0ce4b34bfd82a) LisaWedin_Ductus)  
+
+### Bug Fixes
+
+-  pin rimfrost-framework-bff to published 0.0.1 release ([47fd7](https://github.com/Forsakringskassan/rimfrost-template-micro-fe-bff/commit/47fd7ebed5299fd) LisaWedin_Ductus)  
+
 ## 0.0.3 (2026-09-16)
 
 ### Bug Fixes
