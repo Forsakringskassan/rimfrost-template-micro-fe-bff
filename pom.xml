@@ -13,6 +13,15 @@
   <version>1.0.0-SNAPSHOT</version>
 
   <dependencies>
+    <!-- TODO: verify this resolves in CI — rimfrost-framework-bff is still 1.0.0-SNAPSHOT with
+         no release tag; confirm it's published to the GitHub Packages repo below (or mvn install
+         it locally) before this builds anywhere but a machine that already has it. -->
+    <dependency>
+      <groupId>se.fk.rimfrost.framework.bff</groupId>
+      <artifactId>rimfrost-framework-bff</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-rest-jackson</artifactId>
