@@ -2,6 +2,18 @@
 
 Changelog of rimfrost-template-micro-fe-bff.
 
+## 0.1.1 (2026-11-04)
+
+### Bug Fixes
+
+-  **deps**  update dependency se.fk.rimfrost.framework.bff:rimfrost-framework-bff to v0.0.3 ([ea7a6](https://github.com/Forsakringskassan/rimfrost-template-micro-fe-bff/commit/ea7a68a87ddd552) Ulf Slunga)  
+-  **deps**  update dependency se.fk.rimfrost.framework.bff:rimfrost-framework-bff to v0.0.2 ([dded7](https://github.com/Forsakringskassan/rimfrost-template-micro-fe-bff/commit/dded7ce5124cabd) renovate[bot])  
+
+### Dependency updates
+
+- pin forsakringskassan/.github action to cbd74f1 ([df9b1](https://github.com/Forsakringskassan/rimfrost-template-micro-fe-bff/commit/df9b1bf0fe5509f) renovate[bot])  
+## rimfrost-1_2 (2026-09-23)
+
 ## 0.1.0 (2026-09-23)
 
 ### Features
