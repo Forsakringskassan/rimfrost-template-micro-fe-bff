@@ -2,6 +2,12 @@
 
 Changelog of rimfrost-template-micro-fe-bff.
 
+## 0.1.2 (2026-11-04)
+
+### Bug Fixes
+
+-  replace secrets with permissions in CI/release workflows ([dfa2d](https://github.com/Forsakringskassan/rimfrost-template-micro-fe-bff/commit/dfa2d342c023b41) Ulf Slunga)  
+
 ## 0.1.1 (2026-11-04)
 
 ### Bug Fixes
