@@ -1,10 +1,10 @@
-name: Bundle Maven Release
+name: Bundle Maven Quarkus Release
 
 on: [workflow_dispatch]
 
 jobs:
   call-workflow:
-    uses: Forsakringskassan/.github/.github/workflows/bundle-maven-release.yaml@main
-    secrets:
-      PACKAGES_RW_ACTOR: ${{ secrets.PACKAGES_RW_ACTOR }}
-      PACKAGES_RW_TOKEN: ${{ secrets.PACKAGES_RW_TOKEN }}
+    permissions:
+      contents: write
+      packages: write
+    uses: Forsakringskassan/.github/.github/workflows/bundle-maven-quarkus-release.yaml@cbc0db833d2d0584b3b0e3b7ed4fd27867b3f6ed # main
