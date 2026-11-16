@@ -14,6 +14,8 @@ import se.fk.github.templatebff.integration.BackendClient;
 import se.fk.github.templatebff.model.PatchTaskBody;
 import se.fk.github.templatebff.model.PatchTaskRequest;
 import se.fk.github.templatebff.model.TaskRequest;
+import se.fk.rimfrost.framework.bff.errorhandling.ErrorResponse;
+import se.fk.rimfrost.framework.bff.logging.LogContext;
 
 import java.time.Instant;
 import java.util.Map;
@@ -42,7 +44,7 @@ public class TemplateBFFController
    public Response getTask(@Valid TaskRequest body)
    {
       LOGGER.debug("POST /api/task handlaggningId={}", body.handlaggningId());
-      return call(body.handlaggningId(), () -> {
+      return withLogContext(body.handlaggningId(), () -> {
          JsonNode data = backendClient.getTask(body.handlaggningId());
          return Response.ok(data).build();
       });
@@ -53,7 +55,7 @@ public class TemplateBFFController
    public Response patchTask(@Valid PatchTaskRequest body)
    {
       LOGGER.debug("PATCH /api/task handlaggningId={}", body.handlaggningId());
-      return call(body.handlaggningId(), () -> {
+      return withLogContext(body.handlaggningId(), () -> {
          backendClient.patchTask(body.handlaggningId(), new PatchTaskBody(body.ersattningId(), body.yrkandestatus()));
          return Response.noContent().build();
       });
@@ -66,10 +68,10 @@ public class TemplateBFFController
       LOGGER.debug("POST /api/task/done handlaggningId={}", body.handlaggningId());
       if (authorization == null || authorization.isBlank())
       {
-         return Response.status(401).entity(Map.of("error", "Authorization header required")).build();
+         return Response.status(401).entity(new ErrorResponse("Authorization header required")).build();
       }
-      return call(body.handlaggningId(), () -> {
-         backendClient.taskDone(body.handlaggningId(), authorization);
+      return withLogContext(body.handlaggningId(), () -> {
+         backendClient.taskDone(body.handlaggningId());
          return Response.noContent().build();
       });
    }
@@ -79,27 +81,17 @@ public class TemplateBFFController
    public Response getUppgiftsbeskrivning()
    {
       LOGGER.debug("GET /api/uppgiftsbeskrivning");
-      return call(null, () -> {
-         JsonNode data = backendClient.getUppgiftsbeskrivning();
-         return Response.ok(data).build();
-      });
+      JsonNode data = backendClient.getUppgiftsbeskrivning();
+      return Response.ok(data).build();
    }
 
-   private Response call(String contextId, Supplier<Response> action)
+   // Exceptions are left to propagate to the framework's GlobalExceptionMapper; this only
+   // scopes the handlaggningId MDC key for the duration of the call.
+   private Response withLogContext(String handlaggningId, Supplier<Response> action)
    {
-      try
+      try (LogContext ignored = LogContext.put("handlaggningId", handlaggningId))
       {
          return action.get();
-      }
-      catch (WebApplicationException e)
-      {
-         LOGGER.error("Upstream error contextId={}, status={}", contextId, e.getResponse().getStatus(), e);
-         return Response.status(e.getResponse().getStatus()).entity(Map.of("error", "Upstream error")).build();
-      }
-      catch (Exception e)
-      {
-         LOGGER.error("Internal error contextId={}", contextId, e);
-         return Response.status(500).entity(Map.of("error", "Internal server error")).build();
       }
    }
 }

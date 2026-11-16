@@ -187,8 +187,12 @@ class TemplateBFFControllerTest
    }
 
    @Test
-   void getUppgiftsbeskrivning_returns502_whenBackendUnavailable()
+   void getUppgiftsbeskrivning_returns500_whenBackendConnectionReset()
    {
+      // In this fk-logging version, a connection reset surfaces as a bare NPE from
+      // LoggingContextClientResponseFilter with no suppressed IOException, so the framework's
+      // masked-network-error detection (GlobalExceptionMapper.isNetworkError) doesn't match it
+      // and it falls through to the generic 500 branch rather than 502.
       WireMockTestResource.getServer().stubFor(get(urlEqualTo("/utokadUppgiftsbeskrivning"))
             .willReturn(aResponse().withFault(com.github.tomakehurst.wiremock.http.Fault.CONNECTION_RESET_BY_PEER)));
 
@@ -198,5 +202,35 @@ class TemplateBFFControllerTest
             .then()
             .statusCode(500)
             .body("error", equalTo("Internal server error"));
+   }
+
+   @Test
+   void readiness_reportsBackendUp()
+   {
+      WireMockTestResource.getServer().stubFor(head(urlMatching(".*"))
+            .willReturn(aResponse().withStatus(200)));
+
+      given()
+            .when()
+            .get("/q/health/ready")
+            .then()
+            .statusCode(200)
+            .body("status", equalTo("UP"))
+            .body("checks.find { it.name == 'backend' }.status", equalTo("UP"));
+   }
+
+   @Test
+   void readiness_reportsBackendDown_whenBackendUnreachable()
+   {
+      WireMockTestResource.getServer().stubFor(head(urlMatching(".*"))
+            .willReturn(aResponse().withFault(com.github.tomakehurst.wiremock.http.Fault.CONNECTION_RESET_BY_PEER)));
+
+      given()
+            .when()
+            .get("/q/health/ready")
+            .then()
+            .statusCode(503)
+            .body("status", equalTo("DOWN"))
+            .body("checks.find { it.name == 'backend' }.status", equalTo("DOWN"));
    }
 }
