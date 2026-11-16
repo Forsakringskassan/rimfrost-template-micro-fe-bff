@@ -2,6 +2,16 @@
 
 Changelog of rimfrost-template-micro-fe-bff.
 
+## 0.1.3 (2026-11-16)
+
+### Bug Fixes
+
+-  Add kafka configuration for ilogg-event channel ([ec2b2](https://github.com/Forsakringskassan/rimfrost-template-micro-fe-bff/commit/ec2b23fe157465e) Lars Persson)  
+-  **deps**  update dependency se.fk.rimfrost.framework.bff:rimfrost-framework-bff to v0.0.4 ([5a868](https://github.com/Forsakringskassan/rimfrost-template-micro-fe-bff/commit/5a868a1ad9e8579) renovate[bot])  
+
+### Dependency updates
+
+- update forsakringskassan/.github digest to cbc0db8 ([a35ce](https://github.com/Forsakringskassan/rimfrost-template-micro-fe-bff/commit/a35ce0a6f8a950f) renovate[bot])  
 ## 0.1.2 (2026-11-04)
 
 ### Bug Fixes
