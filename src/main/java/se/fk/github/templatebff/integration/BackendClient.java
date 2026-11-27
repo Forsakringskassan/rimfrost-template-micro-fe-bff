@@ -23,9 +23,7 @@ public interface BackendClient
 
    @POST
    @Path("/{handlaggningId}/done")
-   void taskDone(
-         @PathParam("handlaggningId") String handlaggningId,
-         @HeaderParam("Authorization") String authorization);
+   void taskDone(@PathParam("handlaggningId") String handlaggningId);
 
    @GET
    @Path("/utokadUppgiftsbeskrivning")
